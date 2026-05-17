@@ -1,0 +1,3 @@
+flask
+open-tamil
+gunicorn
