@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template
 import pandas as pd
 import json
@@ -7,8 +8,12 @@ app = Flask(__name__)
 @app.route('/')
 def home():
     try:
-        # CSV ஃபைலை வாசித்தல்
-        df = pd.read_csv('tamil_quiz_data.csv')
+        # 1. கோப்பு இருக்கும் சரியான பாதையைக் கண்டறிதல்
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        csv_path = os.path.join(base_dir, 'tamil_quiz_data.csv')
+        
+        # 2. UTF-8 Encoding உடன் வாசித்தல் (தமிழ் எழுத்துக்களுக்கு கட்டாயம் தேவை)
+        df = pd.read_csv(csv_path, encoding='utf-8')
         
         # காலி இடங்களை (NaN) சரிசெய்தல்
         df = df.fillna("")
@@ -27,4 +32,6 @@ def home():
     return render_template('index.html', backend_data=quiz_json)
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # 3. Render வழங்கும் Port-ஐப் பயன்படுத்துதல்
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
