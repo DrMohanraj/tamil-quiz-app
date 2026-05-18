@@ -35,7 +35,6 @@
       <div class="progress-section">
         <div class="progress-header">
           <span class="q-count" id="q-count">கேள்வி 1/10</span>
-          <span class="accuracy" id="accuracy-rate">துல்லியம்: 100%</span>
         </div>
         <div class="progress-track">
           <div class="progress-fill" id="progress-bar"></div>
@@ -45,26 +44,22 @@
       <div class="quiz-card" id="quiz-card" role="region" aria-live="polite">
         <div class="card-glow"></div>
         <div class="question-meta">
-          <span class="badge type-badge">வாக்கியத்தை நிரப்புக</span>
-          </div>
+          <span class="badge type-badge">சரியான விடையைத் தேர்ந்தெடு</span>
+        </div>
         
         <h2 class="question-text" id="question-text">
-          தமிழ் மொழி <span class="blank-space" id="blank-space">___</span> சிறப்பு மிக்கது.
+          கேள்விகள் ஏற்றப்படுகின்றன...
         </h2>
 
         <div class="options-grid" id="options-grid">
           </div>
       </div>
-
-      <div class="feedback-toast" id="feedback-toast" role="alert"></div>
     </main>
   </div>
 
-<script>
-    // Python-ல் இருந்து வரும் CSV தரவுகளை JS-க்கு மாற்றுதல்
-    const mockData = {{ backend_data | safe }};
+  <script>
+    const quizData = {{ backend_data | safe }};
   </script>
   <script src="/static/js/main.js"></script>
-</body>
 </body>
 </html>
