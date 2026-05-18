@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ta" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="தமிழ் சொல்-களஞ்சியம் - சிறந்த வினாடி வினா அனுபவம்">
+  <title>சொல்-களஞ்சியம் | Premium</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Tamil:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="bg-mesh" aria-hidden="true"></div>
+
+  <div class="app-shell">
+    <nav class="navbar">
+      <div class="nav-brand">
+        <div class="brand-logo">ச</div>
+        <span class="brand-text">சொல்-களஞ்சியம்</span>
+      </div>
+      <div class="nav-metrics">
+        <div class="metric-pill streak-pill" aria-label="தொடர் வெற்றி">
+          <span class="emoji flame-anim">🔥</span> <span id="streak-counter">0</span>
+        </div>
+        <div class="metric-pill score-pill" aria-label="மதிப்பெண்">
+          <span class="emoji">⭐️</span> <span id="score-counter">0</span>
+        </div>
+      </div>
+    </nav>
+
+    <main class="main-container">
+      <div class="progress-section">
+        <div class="progress-header">
+          <span class="q-count" id="q-count">கேள்வி 1/10</span>
+          <span class="accuracy" id="accuracy-rate">துல்லியம்: 100%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-bar"></div>
+        </div>
+      </div>
+
+      <div class="quiz-card" id="quiz-card" role="region" aria-live="polite">
+        <div class="card-glow"></div>
+        <div class="question-meta">
+          <span class="badge type-badge">வாக்கியத்தை நிரப்புக</span>
+          </div>
+        
+        <h2 class="question-text" id="question-text">
+          தமிழ் மொழி <span class="blank-space" id="blank-space">___</span> சிறப்பு மிக்கது.
+        </h2>
+
+        <div class="options-grid" id="options-grid">
+          </div>
+      </div>
+
+      <div class="feedback-toast" id="feedback-toast" role="alert"></div>
+    </main>
+  </div>
+
+  <script src="/static/js/main.js"></script>
+</body>
+</html>
