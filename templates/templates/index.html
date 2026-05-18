@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="description" content="தமிழ் சொல்-களஞ்சியம் - சிறந்த வினாடி வினா அனுபவம்">
-  <title>சொல்-களஞ்சியம் | Premium</title>
+  <meta name="description" content="தமிழ் சொல்-களஞ்சியம் - Anagram Quiz">
+  <title>சொல்-களஞ்சியம் | Anagram Mode</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,7 +35,6 @@
       <div class="progress-section">
         <div class="progress-header">
           <span class="q-count" id="q-count">கேள்வி 1/10</span>
-          <span class="accuracy" id="accuracy-rate">துல்லியம்: 100%</span>
         </div>
         <div class="progress-track">
           <div class="progress-fill" id="progress-bar"></div>
@@ -45,21 +44,25 @@
       <div class="quiz-card" id="quiz-card" role="region" aria-live="polite">
         <div class="card-glow"></div>
         <div class="question-meta">
-          <span class="badge type-badge">வாக்கியத்தை நிரப்புக</span>
-          </div>
+          <span class="badge type-badge">எழுத்துக்களை முறைப்படுத்துக</span>
+        </div>
         
         <h2 class="question-text" id="question-text">
-          தமிழ் மொழி <span class="blank-space" id="blank-space">___</span> சிறப்பு மிக்கது.
+          கேள்விகள் ஏற்றப்படுகின்றன...
         </h2>
 
-        <div class="options-grid" id="options-grid">
-          </div>
+        <div class="anagram-workspace">
+          <div class="answer-slots" id="answer-slots"></div>
+          
+          <div class="jumbled-letters" id="jumbled-letters"></div>
+        </div>
       </div>
-
-      <div class="feedback-toast" id="feedback-toast" role="alert"></div>
     </main>
   </div>
 
+  <script>
+    const quizData = {{ backend_data | safe }};
+  </script>
   <script src="/static/js/main.js"></script>
 </body>
 </html>
