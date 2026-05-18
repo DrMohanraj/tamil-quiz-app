@@ -24,7 +24,7 @@ except ImportError:
 if not os.path.exists('templates'):
     os.makedirs('templates')
 
-# Google Stitch Design + Dynamic JavaScript
+# Google Stitch Design + Advanced JavaScript (Undo, Shake, Auto-Numbers)
 html_content = """
 <!DOCTYPE html>
 <html lang="ta">
@@ -43,59 +43,15 @@ html_content = """
             "colors": {
                     "on-background": "#161d1f",
                     "primary-container": "#008377",
-                    "on-primary-fixed": "#00201c",
-                    "tertiary-fixed-dim": "#b8cac9",
-                    "on-surface": "#161d1f",
-                    "on-error": "#ffffff",
-                    "tertiary": "#4f5f5f",
-                    "surface-dim": "#d4dbdd",
-                    "surface-container-highest": "#dde4e6",
-                    "on-tertiary-container": "#f3fffe",
-                    "on-secondary-fixed-variant": "#693c00",
-                    "inverse-surface": "#2b3234",
-                    "on-primary-fixed-variant": "#005048",
-                    "inverse-on-surface": "#ebf2f4",
-                    "secondary-container": "#ff9800",
-                    "error-container": "#ffdad6",
-                    "tertiary-fixed": "#d4e6e5",
-                    "surface": "#f4fafd",
-                    "on-tertiary-fixed-variant": "#3a4a49",
-                    "background": "#f4fafd",
-                    "tertiary-container": "#677877",
                     "surface-container-lowest": "#ffffff",
-                    "primary-fixed-dim": "#67d9c9",
-                    "on-surface-variant": "#3d4947",
-                    "surface-variant": "#dde4e6",
-                    "outline-variant": "#bcc9c6",
-                    "primary-fixed": "#85f6e5",
-                    "surface-bright": "#f4fafd",
-                    "on-primary-container": "#f4fffb",
-                    "surface-container-high": "#e2e9ec",
-                    "on-error-container": "#93000a",
                     "primary": "#00685e",
-                    "on-secondary": "#ffffff",
-                    "on-tertiary-fixed": "#0e1e1e",
-                    "surface-container": "#e8eff1",
-                    "inverse-primary": "#67d9c9",
-                    "surface-tint": "#006a60",
-                    "secondary-fixed": "#ffdcbe",
-                    "on-secondary-fixed": "#2c1600",
-                    "secondary": "#8b5000",
-                    "surface-container-low": "#eef5f7",
-                    "on-secondary-container": "#653900",
-                    "on-tertiary": "#ffffff",
-                    "on-primary": "#ffffff",
-                    "outline": "#6d7a77",
-                    "error": "#ba1a1a",
-                    "secondary-fixed-dim": "#ffb870"
+                    "secondary-container": "#ff9800",
+                    "surface": "#f4fafd",
             },
             "fontFamily": {
                     "body-lg": ["Plus Jakarta Sans"],
                     "headline-lg": ["Plus Jakarta Sans"],
-                    "body-md": ["Plus Jakarta Sans"],
-                    "headline-xl": ["Plus Jakarta Sans"],
-                    "label-md": ["Plus Jakarta Sans"],
-                    "headline-lg-mobile": ["Plus Jakarta Sans"]
+                    "label-md": ["Plus Jakarta Sans"]
             }
           },
         },
@@ -108,6 +64,20 @@ html_content = """
         .tactile-btn-orange { box-shadow: 0 4px 0 0 rgba(101, 57, 0, 1); transition: all 0.1s ease; }
         .tactile-btn-orange:active { transform: translateY(4px); box-shadow: 0 0 0 0 rgba(101, 57, 0, 1); }
         .blank { color: #008377; font-weight: bold; text-decoration: underline; }
+        
+        /* தவறான விடைக்கான குலுங்கும் அனிமேஷன் (Shake Animation) */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            50% { transform: translateX(6px); }
+            75% { transform: translateX(-6px); }
+        }
+        .shake-error {
+            animation: shake 0.4s ease-in-out;
+            background-color: #ef4444 !important; /* Red color */
+            color: white !important;
+            box-shadow: 0 4px 0 0 #b91c1c !important;
+        }
     </style>
 </head>
 <body class="bg-surface text-on-surface font-body-md min-h-screen pb-24 md:pb-0">
@@ -127,8 +97,8 @@ html_content = """
         <div class="md:col-span-8 bg-surface-container-lowest rounded-xl p-6 border-2 border-primary/5 shadow-sm">
             <div class="flex flex-col md:flex-row gap-6 items-end">
                 <div class="w-full space-y-2">
-                    <label class="font-label-md text-label-md text-outline">வகுப்பைத் தேர்ந்தெடு</label>
-                    <select id="class-select" class="w-full bg-surface-container-low border-2 border-transparent focus:border-secondary-container rounded-lg p-3 font-body-md appearance-none">
+                    <label class="font-label-md text-label-md text-gray-600">வகுப்பைத் தேர்ந்தெடு</label>
+                    <select id="class-select" class="w-full bg-gray-100 border-2 border-transparent focus:border-orange-500 rounded-lg p-3 font-body-md appearance-none">
                         <option value="6-ஆம் வகுப்பு">6-ஆம் வகுப்பு</option>
                         <option value="7-ஆம் வகுப்பு">7-ஆம் வகுப்பு</option>
                         <option value="8-ஆம் வகுப்பு">8-ஆம் வகுப்பு</option>
@@ -136,22 +106,22 @@ html_content = """
                     </select>
                 </div>
                 <div class="w-full space-y-2">
-                    <label class="font-label-md text-label-md text-outline">இயலைத் தேர்ந்தெடு</label>
-                    <select id="chapter-select" class="w-full bg-surface-container-low border-2 border-transparent focus:border-secondary-container rounded-lg p-3 font-body-md appearance-none">
+                    <label class="font-label-md text-label-md text-gray-600">இயலைத் தேர்ந்தெடு</label>
+                    <select id="chapter-select" class="w-full bg-gray-100 border-2 border-transparent focus:border-orange-500 rounded-lg p-3 font-body-md appearance-none">
                         <option value="இயல் 1">இயல் 1</option>
                         <option value="இயல் 2">இயல் 2</option>
                         <option value="இயல் 3">இயல் 3</option>
                     </select>
                 </div>
-                <button onclick="startGame()" class="w-full md:w-auto bg-primary text-on-primary font-label-md text-label-md px-8 py-3.5 rounded-xl tactile-btn whitespace-nowrap">
+                <button onclick="startGame()" class="w-full md:w-auto bg-primary text-white font-label-md px-8 py-3.5 rounded-xl tactile-btn whitespace-nowrap">
                     விளையாடத் தொடங்கு
                 </button>
             </div>
         </div>
-        <div class="md:col-span-4 bg-primary-container text-on-primary-container rounded-xl p-6 relative overflow-hidden flex flex-col justify-center">
+        <div class="md:col-span-4 bg-primary-container text-white rounded-xl p-6 relative overflow-hidden flex flex-col justify-center">
             <div class="z-10">
-                <h3 class="font-headline-lg-mobile text-headline-lg-mobile mb-1">இன்றைய இலக்கு</h3>
-                <p class="font-body-md text-body-md opacity-90">சொற்களைச் சரியாகக் கண்டறிந்து வெற்றி பெறு!</p>
+                <h3 class="text-xl font-bold mb-1">இன்றைய இலக்கு</h3>
+                <p class="opacity-90">சொற்களைச் சரியாகக் கண்டறிந்து வெற்றி பெறு!</p>
             </div>
             <div class="absolute -right-4 -bottom-4 opacity-20">
                 <span class="material-symbols-outlined text-[120px]" data-icon="auto_awesome">auto_awesome</span>
@@ -163,31 +133,35 @@ html_content = """
         
         <div class="bg-primary/5 p-4 md:p-6 border-b border-primary/10 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <span class="bg-primary text-on-primary rounded-full p-2 flex items-center justify-center">
+                <span class="bg-primary text-white rounded-full p-2 flex items-center justify-center">
                     <span class="material-symbols-outlined text-sm" data-icon="quiz">quiz</span>
                 </span>
-                <h2 id="question-text" class="font-headline-lg-mobile text-headline-lg-mobile text-primary">கேள்வி ஏற்றப்படுகிறது...</h2>
+                <h2 id="question-text" class="text-xl font-bold text-primary">கேள்வி ஏற்றப்படுகிறது...</h2>
             </div>
         </div>
 
         <div class="p-6 md:p-12 space-y-12">
             <div class="text-center space-y-6">
-                <div class="inline-block px-4 py-1 bg-secondary-container/10 text-secondary font-label-md text-label-md rounded-full border border-secondary-container/20">
+                <div class="inline-block px-4 py-1 bg-orange-100 text-orange-800 font-bold rounded-full border border-orange-200">
                     வாக்கியத்தை நிரப்புக
                 </div>
-                <p id="sentence-text" class="font-headline-lg text-2xl text-on-surface leading-relaxed"></p>
+                <p id="sentence-text" class="font-headline-lg text-2xl text-gray-800 leading-relaxed"></p>
             </div>
 
             <div class="max-w-xl mx-auto space-y-4">
                 <div class="flex items-center justify-between px-4">
-                    <span class="font-label-md text-label-md text-outline">உன் விடை:</span>
+                    <div class="flex items-center gap-3">
+                        <span class="font-bold text-gray-600">உன் விடை:</span>
+                        <button id="undo-btn" onclick="undoLetter()" class="flex items-center gap-1 bg-gray-200 text-gray-700 px-3 py-1 rounded-lg text-sm font-bold hover:bg-gray-300 transition" style="display:none;">
+                            <span class="material-symbols-outlined text-[16px]">undo</span> மாற்று
+                        </button>
+                    </div>
                     <div id="status-icons" class="flex gap-2" style="display:none;">
-                        <span id="icon-correct" class="material-symbols-outlined text-green-600" data-icon="check_circle" style="display:none;">check_circle</span>
-                        <span id="icon-wrong" class="material-symbols-outlined text-error" data-icon="cancel" style="display:none;">cancel</span>
+                        <span id="icon-correct" class="material-symbols-outlined text-green-600 text-3xl" data-icon="check_circle" style="display:none;">check_circle</span>
                     </div>
                 </div>
                 
-                <div id="answer-display" class="bg-surface-container-low border-2 border-primary-container/20 rounded-2xl h-20 flex items-center justify-center gap-3 shadow-inner text-3xl font-bold text-primary">
+                <div id="answer-display" class="bg-gray-50 border-2 border-primary/20 rounded-2xl h-20 flex items-center justify-center gap-3 shadow-inner text-3xl font-bold text-primary">
                     </div>
             </div>
 
@@ -195,7 +169,7 @@ html_content = """
                 </div>
 
             <div class="flex flex-col md:flex-row items-center justify-center gap-6 pt-8">
-                <button id="next-btn" onclick="fetchQuestion()" class="flex items-center gap-3 bg-secondary-container text-on-secondary-container px-10 py-4 rounded-full tactile-btn-orange font-headline-lg-mobile text-headline-lg-mobile group" style="display: none;">
+                <button id="next-btn" onclick="fetchQuestion()" class="flex items-center gap-3 bg-orange-500 text-white px-10 py-4 rounded-full tactile-btn-orange font-bold text-xl group" style="display: none;">
                     அடுத்த கேள்வி
                     <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
                 </button>
@@ -209,9 +183,11 @@ html_content = """
 <audio id="error-sound" src="https://assets.mixkit.co/active_storage/sfx/2954/2954-preview.mp3"></audio>
 
 <script>
-    let currentCorrectWord = "";
-    let currentAnswer = "";
+    let correctLettersArray = []; // விடையின் சரியான எழுத்துக்கள் வரிசை
+    let currentAnswerArray = [];  // மாணவர் தேர்ந்தெடுத்த எழுத்துக்கள்
+    let clickedButtons = [];      // Undo செய்வதற்காகக் க்ளிக் செய்த பட்டன்களின் பதிவு
     let score = 0;
+    let questionNumber = 0;       // கேள்வி எண்
     let selectedClass = "";
     let selectedChapter = "";
 
@@ -219,18 +195,21 @@ html_content = """
         selectedClass = document.getElementById('class-select').value;
         selectedChapter = document.getElementById('chapter-select').value;
         document.getElementById('quiz-area').style.display = 'block';
+        questionNumber = 0; // புதிய இயல் தொடங்கும் போது எண் 1-ல் இருந்து வர
         fetchQuestion();
     }
 
     function fetchQuestion() {
+        questionNumber++;
         document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('undo-btn').style.display = 'none';
         document.getElementById('answer-display').innerHTML = "";
         document.getElementById('status-icons').style.display = 'none';
         document.getElementById('icon-correct').style.display = 'none';
-        document.getElementById('icon-wrong').style.display = 'none';
-        currentAnswer = "";
         
-        // Sending class and chapter to Python Server
+        currentAnswerArray = [];
+        clickedButtons = [];
+        
         fetch(`/get_question?vakuppu=${encodeURIComponent(selectedClass)}&iyal=${encodeURIComponent(selectedChapter)}`)
             .then(response => response.json())
             .then(data => {
@@ -238,59 +217,85 @@ html_content = """
                     document.getElementById('question-text').innerHTML = "⚠️ " + data.error;
                     document.getElementById('sentence-text').innerHTML = "இந்த இயலில் கேள்விகள் இன்னும் சேர்க்கப்படவில்லை.";
                     document.getElementById('jumbled-letters-grid').innerHTML = "";
+                    questionNumber--; 
                     return;
                 }
                 
-                document.getElementById('question-text').innerHTML = data.question;
+                // கேள்வி எண் சேர்த்தல்
+                document.getElementById('question-text').innerHTML = questionNumber + ". " + data.question;
                 document.getElementById('sentence-text').innerHTML = data.sentence;
-                currentCorrectWord = data.correct_word;
+                
+                correctLettersArray = data.correct_letters_array; // பைத்தானில் இருந்து வரும் எழுத்துக்களின் வரிசை
                 
                 let lettersHTML = "";
-                let colors = ['bg-primary tactile-btn text-on-primary hover:bg-primary-container', 'bg-secondary-container tactile-btn-orange text-on-secondary-container hover:bg-secondary-fixed'];
+                let colors = ['bg-primary tactile-btn text-white hover:bg-teal-700', 'bg-orange-500 tactile-btn-orange text-white hover:bg-orange-600'];
                 
                 data.jumbled_letters.forEach((letter, index) => {
                     let colorClass = colors[index % 2];
-                    lettersHTML += `<button class="w-16 h-16 md:w-20 md:h-20 rounded-xl font-headline-lg text-2xl flex items-center justify-center transition-all letter-btn ${colorClass}" onclick="addLetter('${letter}', this)">${letter}</button>`;
+                    lettersHTML += `<button class="w-16 h-16 md:w-20 md:h-20 rounded-xl font-bold text-3xl flex items-center justify-center transition-all letter-btn ${colorClass}" onclick="addLetter('${letter}', this)">${letter}</button>`;
                 });
                 document.getElementById('jumbled-letters-grid').innerHTML = lettersHTML;
             });
     }
 
     function addLetter(letter, btnElement) {
-        currentAnswer += letter;
+        let currentIndex = currentAnswerArray.length;
         
-        // Create an attractive box for the clicked letter
-        document.getElementById('answer-display').innerHTML += `<div class="w-12 h-12 bg-surface-container-lowest rounded-lg flex items-center justify-center shadow-sm border border-primary/10">${letter}</div>`;
-        
-        btnElement.style.display = 'none'; 
-        
-        if (currentAnswer.length === currentCorrectWord.length) {
-            document.getElementById('status-icons').style.display = 'flex';
+        // உடனடிச் சரிபார்ப்பு (Immediate Validation)
+        if (letter === correctLettersArray[currentIndex]) {
+            // சரியான எழுத்து
+            currentAnswerArray.push(letter);
+            clickedButtons.push(btnElement);
+            btnElement.style.display = 'none';
+            document.getElementById('undo-btn').style.display = 'flex';
+            updateAnswerDisplay();
             
-            if (currentAnswer === currentCorrectWord) {
+            // முழு விடையையும் கண்டுபிடித்துவிட்டாரா?
+            if (currentAnswerArray.length === correctLettersArray.length) {
+                document.getElementById('status-icons').style.display = 'flex';
                 document.getElementById('icon-correct').style.display = 'block';
                 document.getElementById('next-btn').style.display = 'flex';
+                document.getElementById('undo-btn').style.display = 'none'; // முடித்த பின் Undo தேவையில்லை
                 
                 let audio = document.getElementById('success-sound');
                 audio.volume = 0.5; audio.play();
                 score += 10;
                 document.getElementById('score-display').innerText = "மதிப்பெண்: " + score;
-                
-            } else {
-                document.getElementById('icon-wrong').style.display = 'block';
-                let errAudio = document.getElementById('error-sound');
-                errAudio.volume = 0.5; errAudio.play();
-                
-                setTimeout(() => {
-                    document.getElementById('answer-display').innerHTML = "";
-                    document.getElementById('status-icons').style.display = 'none';
-                    document.getElementById('icon-wrong').style.display = 'none';
-                    currentAnswer = "";
-                    let buttons = document.querySelectorAll('.letter-btn');
-                    buttons.forEach(btn => btn.style.display = 'flex');
-                }, 1500);
             }
+        } else {
+            // தவறான எழுத்து (Shake Animation & Error Sound)
+            btnElement.classList.add('shake-error');
+            let errAudio = document.getElementById('error-sound');
+            errAudio.volume = 0.5; errAudio.play();
+            
+            // அரை நொடிக்குப் பிறகு குலுங்கும் அனிமேஷனை நீக்குதல்
+            setTimeout(() => {
+                btnElement.classList.remove('shake-error');
+            }, 400);
         }
+    }
+
+    // Undo (மாற்று) பட்டன் செயல்பாடு
+    function undoLetter() {
+        if (currentAnswerArray.length === 0) return;
+        
+        currentAnswerArray.pop(); // விடையிலிருந்து கடைசி எழுத்தை நீக்கு
+        let btn = clickedButtons.pop(); // கடைசியாக மறைக்கப்பட்ட பட்டனை எடு
+        btn.style.display = 'flex'; // பட்டனை மீண்டும் காண்பி
+        
+        updateAnswerDisplay();
+        
+        if (currentAnswerArray.length === 0) {
+            document.getElementById('undo-btn').style.display = 'none';
+        }
+    }
+
+    function updateAnswerDisplay() {
+        let html = "";
+        currentAnswerArray.forEach(l => {
+            html += `<div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-sm border border-gray-200">${l}</div>`;
+        });
+        document.getElementById('answer-display').innerHTML = html;
     }
 </script>
 </body>
@@ -319,7 +324,6 @@ def get_question():
         csv_reader = csv.DictReader(file)
         data_list = list(csv_reader)
         
-        # Filtering Logic based on dropdown selection
         filtered_data = []
         for row in data_list:
             if row.get('வகுப்பு', '').strip() == vakuppu and row.get('இயல்', '').strip() == iyal:
@@ -344,6 +348,7 @@ def get_question():
                 random.shuffle(jumbled)
         else:
             word_to_jumble = "பிழை"
+            letters = ["பி", "ழை"]
             jumbled = ["பி", "ழை"]
 
         sentence_with_blank = full_answer.replace(word_to_jumble, "<span class='blank'>________</span>")
@@ -352,7 +357,8 @@ def get_question():
             'question': question,
             'sentence': sentence_with_blank,
             'jumbled_letters': jumbled,
-            'correct_word': word_to_jumble
+            'correct_word': word_to_jumble,
+            'correct_letters_array': letters # Javascript-க்கு வரிசையான எழுத்துக்களை அனுப்புதல்
         })
 
 if __name__ == '__main__':
