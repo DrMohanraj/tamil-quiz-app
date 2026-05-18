@@ -24,7 +24,7 @@ except ImportError:
 if not os.path.exists('templates'):
     os.makedirs('templates')
 
-# Google Stitch Design + Advanced JavaScript + Korkai Font Integration
+# Google Stitch Design + Korkai Font + Skip Option + Remaining Count + Game Over Screen
 html_content = """
 <!DOCTYPE html>
 <html lang="ta">
@@ -60,7 +60,7 @@ html_content = """
       }
     </script>
     <style>
-        /* கொற்கை எழுத்துருவை இணையதளத்தில் ஏற்றுதல் */
+        /* கொற்கை எழுத்துரு */
         @font-face {
             font-family: 'Korkai';
             src: url("{{ url_for('static', filename='fonts/Korkai-Black.ttf') }}") format('truetype');
@@ -69,7 +69,6 @@ html_content = """
             font-display: swap;
         }
 
-        /* ஐகான்கள் பாதிக்கப்படாமல் இருக்க பிரத்யேகக் குறியீடு */
         .material-symbols-outlined { 
             font-family: 'Material Symbols Outlined' !important; 
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; 
@@ -99,7 +98,10 @@ html_content = """
 
 <header class="flex justify-between items-center w-full px-4 py-4 sticky top-0 z-50 bg-surface border-b-2 border-primary/10 shadow-sm">
     <h1 class="font-headline-lg-mobile text-2xl font-extrabold text-primary">📚 சொல்-களஞ்சியம்</h1>
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-3">
+        <span id="remaining-display" class="font-label-md text-sm text-orange-800 bg-orange-100 px-3 py-1 rounded-full border border-orange-200" style="display:none;">
+            மீதம்: 0
+        </span>
         <span id="score-display" class="font-label-md text-label-md text-primary bg-primary-container/10 px-4 py-2 rounded-full border border-primary/20">
             மதிப்பெண்: 0
         </span>
@@ -165,10 +167,13 @@ html_content = """
 
             <div class="max-w-xl mx-auto space-y-4">
                 <div class="flex items-center justify-between px-4">
-                    <div class="flex items-center gap-3">
-                        <span class="font-bold text-gray-600">உன் விடை:</span>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-gray-600 mr-2">உன் விடை:</span>
                         <button id="undo-btn" onclick="undoLetter()" class="flex items-center gap-1 bg-gray-200 text-gray-700 px-3 py-1 rounded-lg text-sm font-bold hover:bg-gray-300 transition" style="display:none;">
                             <span class="material-symbols-outlined text-[16px]">undo</span> மாற்று
+                        </button>
+                        <button id="skip-btn" onclick="skipQuestion()" class="flex items-center gap-1 bg-red-100 text-red-700 px-3 py-1 rounded-lg text-sm font-bold hover:bg-red-200 transition" style="display:none;">
+                            தவிர் <span class="material-symbols-outlined text-[16px]">skip_next</span>
                         </button>
                     </div>
                     <div id="status-icons" class="flex gap-2" style="display:none;">
@@ -203,6 +208,7 @@ html_content = """
     let clickedButtons = [];      
     let score = 0;
     let questionNumber = 0;       
+    let totalChapterQuestions = 0;
     let selectedClass = "";
     let selectedChapter = "";
 
@@ -210,7 +216,12 @@ html_content = """
         selectedClass = document.getElementById('class-select').value;
         selectedChapter = document.getElementById('chapter-select').value;
         document.getElementById('quiz-area').style.display = 'block';
+        
+        // Reset counters
         questionNumber = 0; 
+        score = 0;
+        document.getElementById('score-display').innerText = "மதிப்பெண்: " + score;
+        
         fetchQuestion();
     }
 
@@ -218,6 +229,7 @@ html_content = """
         questionNumber++;
         document.getElementById('next-btn').style.display = 'none';
         document.getElementById('undo-btn').style.display = 'none';
+        document.getElementById('skip-btn').style.display = 'flex'; // தவிர் பட்டனை காண்பி
         document.getElementById('answer-display').innerHTML = "";
         document.getElementById('status-icons').style.display = 'none';
         document.getElementById('icon-correct').style.display = 'none';
@@ -236,6 +248,28 @@ html_content = """
                     return;
                 }
                 
+                totalChapterQuestions = data.total_questions;
+
+                // இயலை வெற்றிகரமாக முடித்துவிட்டால் (Game Over Screen)
+                if (questionNumber > totalChapterQuestions) {
+                    document.getElementById('quiz-area').innerHTML = `
+                        <div class="p-12 text-center space-y-6 bg-surface-container-lowest">
+                            <span class="material-symbols-outlined text-6xl text-orange-500">emoji_events</span>
+                            <h2 class="text-4xl font-bold text-primary">வாழ்த்துகள்!</h2>
+                            <p class="text-2xl text-gray-700">இந்த இயலை வெற்றிகரமாக முடித்துவிட்டீர்கள்.</p>
+                            <p class="text-3xl text-primary font-bold mt-4">உங்களின் மொத்த மதிப்பெண்: ${score}</p>
+                            <button onclick="location.reload()" class="mt-8 bg-orange-500 text-white px-8 py-3 rounded-xl tactile-btn-orange font-bold text-xl shadow-lg">மீண்டும் விளையாடு</button>
+                        </div>
+                    `;
+                    document.getElementById('remaining-display').style.display = 'none';
+                    return;
+                }
+                
+                // மீதமுள்ள கேள்விகளைக் கணக்கிடுதல்
+                let remaining = totalChapterQuestions - questionNumber;
+                document.getElementById('remaining-display').style.display = 'inline-block';
+                document.getElementById('remaining-display').innerText = "மீதம்: " + remaining;
+
                 document.getElementById('question-text').innerHTML = questionNumber + ". " + data.question;
                 document.getElementById('sentence-text').innerHTML = data.sentence;
                 
@@ -267,6 +301,7 @@ html_content = """
                 document.getElementById('icon-correct').style.display = 'block';
                 document.getElementById('next-btn').style.display = 'flex';
                 document.getElementById('undo-btn').style.display = 'none'; 
+                document.getElementById('skip-btn').style.display = 'none'; // முடித்த பின் தவிர் தேவையில்லை
                 
                 let audio = document.getElementById('success-sound');
                 audio.volume = 0.5; audio.play();
@@ -296,6 +331,11 @@ html_content = """
         if (currentAnswerArray.length === 0) {
             document.getElementById('undo-btn').style.display = 'none';
         }
+    }
+
+    // தவிர் பட்டன் செயல்பாடு (Skip Logic)
+    function skipQuestion() {
+        fetchQuestion();
     }
 
     function updateAnswerDisplay() {
@@ -340,6 +380,7 @@ def get_question():
         if not filtered_data:
              return jsonify({"error": f"{vakuppu} - {iyal} இல் தரவுகள் இல்லை!"})
              
+        total_questions_count = len(filtered_data)
         random_row = random.choice(filtered_data)
         
         question = random_row.get('கேள்வி', '')
@@ -366,7 +407,8 @@ def get_question():
             'sentence': sentence_with_blank,
             'jumbled_letters': jumbled,
             'correct_word': word_to_jumble,
-            'correct_letters_array': letters 
+            'correct_letters_array': letters,
+            'total_questions': total_questions_count
         })
 
 if __name__ == '__main__':
