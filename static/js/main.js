@@ -1,14 +1,3 @@
-/**
- * Modern Quiz State Management
- * Connect this to your Flask Backend (tamil_quiz_data.csv) via Fetch API or Jinja templates.
- */
-
-// Example Data Structure (You will feed this from your backend)
-const mockData = [
-  { sentence: "தமிழ் மொழி ___ சிறப்பு மிக்கது.", options: ["இலக்கியத்தால்", "அளவால்", "எண்ணிக்கையால்", "பணத்தால்"], answer: "இலக்கியத்தால்" },
-  { sentence: "மழை ___ பெய்கிறது.", options: ["சத்தமாக", "மெதுவாக", "கொட்டோகொட்டென", "அழகாக"], answer: "கொட்டோகொட்டென" }
-];
-
 let state = {
   currentIndex: 0,
   score: 0,
@@ -16,7 +5,6 @@ let state = {
   isAnswered: false
 };
 
-// DOM Elements
 const elements = {
   questionText: document.getElementById('question-text'),
   optionsGrid: document.getElementById('options-grid'),
@@ -26,78 +14,83 @@ const elements = {
   qCount: document.getElementById('q-count')
 };
 
-// Initialize App
+// வினாடி வினாவைத் தொடங்குதல்
 function initQuiz() {
+  if (!quizData || quizData.length === 0) {
+    elements.questionText.textContent = "கேள்விகள் கிடைக்கவில்லை. CSV ஃபைலை சரிபார்க்கவும்.";
+    elements.optionsGrid.innerHTML = '';
+    return;
+  }
   loadQuestion(state.currentIndex);
-  updateMetrics();
 }
 
-// Load Question
+// கேள்வியை திரையில் காட்டுதல்
 function loadQuestion(index) {
-  if (index >= mockData.length) {
-    // Redirect to success page or show summary component
+  if (index >= quizData.length) {
+    elements.questionText.innerHTML = `🎉 வினாடி வினா முடிந்தது!<br><br>உங்கள் மொத்த மதிப்பெண்: <span style="color:var(--c-gold)">${state.score}</span>`;
+    elements.optionsGrid.innerHTML = '';
     return;
   }
 
-  const q = mockData[index];
+  const q = quizData[index];
   state.isAnswered = false;
   
-  // Parse sentence for blank
-  const parts = q.sentence.split('___');
-  elements.questionText.innerHTML = `${parts[0]} <span class="blank-space" id="blank-space">___</span> ${parts[1] || ''}`;
+  // CSV-ல் உள்ள Column பெயர்கள் (உங்கள் CSV-ல் எப்படி உள்ளதோ அதற்கேற்ப எடுத்துக்கொள்ளும்)
+  const question = q['Question'] || q['question'] || q['கேள்வி'];
+  const opt1 = q['Option1'] || q['option1'] || q['Option 1'];
+  const opt2 = q['Option2'] || q['option2'] || q['Option 2'];
+  const opt3 = q['Option3'] || q['option3'] || q['Option 3'];
+  const opt4 = q['Option4'] || q['option4'] || q['Option 4'];
+  const answer = q['Answer'] || q['answer'] || q['விடை'];
 
-  // Render Options
+  elements.questionText.textContent = question;
   elements.optionsGrid.innerHTML = '';
-  // Shuffle options in production
-  q.options.forEach(opt => {
+
+  // 4 ஆப்ஷன்களை பட்டன்களாக மாற்றுதல்
+  const options = [opt1, opt2, opt3, opt4].filter(o => o); // காலியாக உள்ளவற்றை நீக்க
+
+  options.forEach(opt => {
     const btn = document.createElement('button');
     btn.className = 'option-btn';
     btn.textContent = opt;
-    btn.onclick = () => handleAnswer(btn, opt, q.answer);
+    btn.onclick = () => handleAnswer(btn, opt, answer);
     elements.optionsGrid.appendChild(btn);
   });
 
-  // Update Progress
-  elements.qCount.textContent = `கேள்வி ${index + 1}/${mockData.length}`;
-  elements.progressBar.style.width = `${((index) / mockData.length) * 100}%`;
+  elements.qCount.textContent = `கேள்வி ${index + 1}/${quizData.length}`;
+  elements.progressBar.style.width = `${((index) / quizData.length) * 100}%`;
 }
 
-// Handle Answer Logic
+// விடையை சரிபார்த்தல்
 function handleAnswer(btn, selected, correct) {
   if (state.isAnswered) return;
   state.isAnswered = true;
 
-  const blank = document.getElementById('blank-space');
-  blank.textContent = selected;
-  blank.classList.add('filled');
-
-  if (selected === correct) {
-    // Correct Answer
+  // விடை சரி என்றால்
+  if (selected.trim() === correct.trim()) {
     btn.classList.add('correct');
-    blank.classList.add('correct');
-    
     state.streak++;
-    const points = 10 * (1 + (state.streak * 0.1)); // Combo multiplier
+    const points = 10 * (1 + (state.streak * 0.1)); // தொடர்ந்து சரியாகச் சொன்னால் போனஸ்
     state.score += Math.round(points);
-    
-    triggerHapticFeedback(true); // For mobile
-  } else {
-    // Wrong Answer
+    triggerHapticFeedback(true);
+  } 
+  // விடை தவறு என்றால்
+  else {
     btn.classList.add('wrong');
-    blank.classList.add('wrong');
     state.streak = 0;
     
-    // Highlight correct answer
+    // சரியான விடையைக் காண்பித்தல்
     Array.from(elements.optionsGrid.children).forEach(b => {
-      if (b.textContent === correct) b.classList.add('correct');
+      if (b.textContent.trim() === correct.trim()) {
+        b.classList.add('correct');
+      }
     });
-
     triggerHapticFeedback(false);
   }
 
   updateMetrics();
 
-  // Move to next question after delay
+  // 1.5 வினாடிகளுக்குப் பிறகு அடுத்த கேள்விக்குச் செல்லுதல்
   setTimeout(() => {
     state.currentIndex++;
     loadQuestion(state.currentIndex);
@@ -108,17 +101,15 @@ function updateMetrics() {
   elements.streakCounter.textContent = state.streak;
   elements.scoreCounter.textContent = state.score;
   
-  // Add animation class
   elements.scoreCounter.parentElement.style.transform = 'scale(1.1)';
   setTimeout(() => elements.scoreCounter.parentElement.style.transform = 'scale(1)', 200);
 }
 
-// Accessibility & Mobile enhancements
 function triggerHapticFeedback(isCorrect) {
   if (window.navigator && window.navigator.vibrate) {
     window.navigator.vibrate(isCorrect ? [50] : [100, 50, 100]);
   }
 }
 
-// Start
+// ஆப் தொடக்கம்
 initQuiz();
