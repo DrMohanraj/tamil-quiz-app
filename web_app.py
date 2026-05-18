@@ -24,7 +24,7 @@ except ImportError:
 if not os.path.exists('templates'):
     os.makedirs('templates')
 
-# Google Stitch Design + Advanced JavaScript (Undo, Shake, Auto-Numbers)
+# Google Stitch Design + Advanced JavaScript + Korkai Font Integration
 html_content = """
 <!DOCTYPE html>
 <html lang="ta">
@@ -33,7 +33,6 @@ html_content = """
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>சொல்-களஞ்சியம்</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     <script id="tailwind-config">
       tailwind.config = {
@@ -49,23 +48,39 @@ html_content = """
                     "surface": "#f4fafd",
             },
             "fontFamily": {
-                    "body-lg": ["Plus Jakarta Sans"],
-                    "headline-lg": ["Plus Jakarta Sans"],
-                    "label-md": ["Plus Jakarta Sans"]
+                    "body-lg": ["Korkai", "sans-serif"],
+                    "headline-lg": ["Korkai", "sans-serif"],
+                    "label-md": ["Korkai", "sans-serif"],
+                    "body-md": ["Korkai", "sans-serif"],
+                    "headline-lg-mobile": ["Korkai", "sans-serif"],
+                    "sans": ["Korkai", "sans-serif"]
             }
           },
         },
       }
     </script>
     <style>
-        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        /* கொற்கை எழுத்துருவை இணையதளத்தில் ஏற்றுதல் */
+        @font-face {
+            font-family: 'Korkai';
+            src: url("{{ url_for('static', filename='fonts/Korkai-Black.ttf') }}") format('truetype');
+            font-weight: 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        /* ஐகான்கள் பாதிக்கப்படாமல் இருக்க பிரத்யேகக் குறியீடு */
+        .material-symbols-outlined { 
+            font-family: 'Material Symbols Outlined' !important; 
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; 
+        }
+
         .tactile-btn { box-shadow: 0 4px 0 0 rgba(0, 80, 72, 1); transition: all 0.1s ease; }
         .tactile-btn:active { transform: translateY(4px); box-shadow: 0 0 0 0 rgba(0, 80, 72, 1); }
         .tactile-btn-orange { box-shadow: 0 4px 0 0 rgba(101, 57, 0, 1); transition: all 0.1s ease; }
         .tactile-btn-orange:active { transform: translateY(4px); box-shadow: 0 0 0 0 rgba(101, 57, 0, 1); }
         .blank { color: #008377; font-weight: bold; text-decoration: underline; }
         
-        /* தவறான விடைக்கான குலுங்கும் அனிமேஷன் (Shake Animation) */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-6px); }
@@ -74,13 +89,13 @@ html_content = """
         }
         .shake-error {
             animation: shake 0.4s ease-in-out;
-            background-color: #ef4444 !important; /* Red color */
+            background-color: #ef4444 !important; 
             color: white !important;
             box-shadow: 0 4px 0 0 #b91c1c !important;
         }
     </style>
 </head>
-<body class="bg-surface text-on-surface font-body-md min-h-screen pb-24 md:pb-0">
+<body class="bg-surface text-on-surface min-h-screen pb-24 md:pb-0" style="font-family: 'Korkai', sans-serif;">
 
 <header class="flex justify-between items-center w-full px-4 py-4 sticky top-0 z-50 bg-surface border-b-2 border-primary/10 shadow-sm">
     <h1 class="font-headline-lg-mobile text-2xl font-extrabold text-primary">📚 சொல்-களஞ்சியம்</h1>
@@ -162,11 +177,11 @@ html_content = """
                 </div>
                 
                 <div id="answer-display" class="bg-gray-50 border-2 border-primary/20 rounded-2xl h-20 flex items-center justify-center gap-3 shadow-inner text-3xl font-bold text-primary">
-                    </div>
+                </div>
             </div>
 
             <div id="jumbled-letters-grid" class="flex flex-wrap justify-center gap-4 max-w-2xl mx-auto">
-                </div>
+            </div>
 
             <div class="flex flex-col md:flex-row items-center justify-center gap-6 pt-8">
                 <button id="next-btn" onclick="fetchQuestion()" class="flex items-center gap-3 bg-orange-500 text-white px-10 py-4 rounded-full tactile-btn-orange font-bold text-xl group" style="display: none;">
@@ -183,11 +198,11 @@ html_content = """
 <audio id="error-sound" src="https://assets.mixkit.co/active_storage/sfx/2954/2954-preview.mp3"></audio>
 
 <script>
-    let correctLettersArray = []; // விடையின் சரியான எழுத்துக்கள் வரிசை
-    let currentAnswerArray = [];  // மாணவர் தேர்ந்தெடுத்த எழுத்துக்கள்
-    let clickedButtons = [];      // Undo செய்வதற்காகக் க்ளிக் செய்த பட்டன்களின் பதிவு
+    let correctLettersArray = []; 
+    let currentAnswerArray = [];  
+    let clickedButtons = [];      
     let score = 0;
-    let questionNumber = 0;       // கேள்வி எண்
+    let questionNumber = 0;       
     let selectedClass = "";
     let selectedChapter = "";
 
@@ -195,7 +210,7 @@ html_content = """
         selectedClass = document.getElementById('class-select').value;
         selectedChapter = document.getElementById('chapter-select').value;
         document.getElementById('quiz-area').style.display = 'block';
-        questionNumber = 0; // புதிய இயல் தொடங்கும் போது எண் 1-ல் இருந்து வர
+        questionNumber = 0; 
         fetchQuestion();
     }
 
@@ -221,11 +236,10 @@ html_content = """
                     return;
                 }
                 
-                // கேள்வி எண் சேர்த்தல்
                 document.getElementById('question-text').innerHTML = questionNumber + ". " + data.question;
                 document.getElementById('sentence-text').innerHTML = data.sentence;
                 
-                correctLettersArray = data.correct_letters_array; // பைத்தானில் இருந்து வரும் எழுத்துக்களின் வரிசை
+                correctLettersArray = data.correct_letters_array; 
                 
                 let lettersHTML = "";
                 let colors = ['bg-primary tactile-btn text-white hover:bg-teal-700', 'bg-orange-500 tactile-btn-orange text-white hover:bg-orange-600'];
@@ -241,21 +255,18 @@ html_content = """
     function addLetter(letter, btnElement) {
         let currentIndex = currentAnswerArray.length;
         
-        // உடனடிச் சரிபார்ப்பு (Immediate Validation)
         if (letter === correctLettersArray[currentIndex]) {
-            // சரியான எழுத்து
             currentAnswerArray.push(letter);
             clickedButtons.push(btnElement);
             btnElement.style.display = 'none';
             document.getElementById('undo-btn').style.display = 'flex';
             updateAnswerDisplay();
             
-            // முழு விடையையும் கண்டுபிடித்துவிட்டாரா?
             if (currentAnswerArray.length === correctLettersArray.length) {
                 document.getElementById('status-icons').style.display = 'flex';
                 document.getElementById('icon-correct').style.display = 'block';
                 document.getElementById('next-btn').style.display = 'flex';
-                document.getElementById('undo-btn').style.display = 'none'; // முடித்த பின் Undo தேவையில்லை
+                document.getElementById('undo-btn').style.display = 'none'; 
                 
                 let audio = document.getElementById('success-sound');
                 audio.volume = 0.5; audio.play();
@@ -263,25 +274,22 @@ html_content = """
                 document.getElementById('score-display').innerText = "மதிப்பெண்: " + score;
             }
         } else {
-            // தவறான எழுத்து (Shake Animation & Error Sound)
             btnElement.classList.add('shake-error');
             let errAudio = document.getElementById('error-sound');
             errAudio.volume = 0.5; errAudio.play();
             
-            // அரை நொடிக்குப் பிறகு குலுங்கும் அனிமேஷனை நீக்குதல்
             setTimeout(() => {
                 btnElement.classList.remove('shake-error');
             }, 400);
         }
     }
 
-    // Undo (மாற்று) பட்டன் செயல்பாடு
     function undoLetter() {
         if (currentAnswerArray.length === 0) return;
         
-        currentAnswerArray.pop(); // விடையிலிருந்து கடைசி எழுத்தை நீக்கு
-        let btn = clickedButtons.pop(); // கடைசியாக மறைக்கப்பட்ட பட்டனை எடு
-        btn.style.display = 'flex'; // பட்டனை மீண்டும் காண்பி
+        currentAnswerArray.pop(); 
+        let btn = clickedButtons.pop(); 
+        btn.style.display = 'flex'; 
         
         updateAnswerDisplay();
         
@@ -358,7 +366,7 @@ def get_question():
             'sentence': sentence_with_blank,
             'jumbled_letters': jumbled,
             'correct_word': word_to_jumble,
-            'correct_letters_array': letters # Javascript-க்கு வரிசையான எழுத்துக்களை அனுப்புதல்
+            'correct_letters_array': letters 
         })
 
 if __name__ == '__main__':
