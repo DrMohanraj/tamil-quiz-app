@@ -3,7 +3,6 @@ import sys
 import subprocess
 import csv
 import random
-from flask import Flask, render_template, jsonify, request
 
 def install_package(package_name):
     python_exe = sys.executable.replace("pythonw.exe", "python.exe")
@@ -20,6 +19,8 @@ try:
 except ImportError:
     install_package("open-tamil")
     from tamil import utf8
+
+from flask import Flask, render_template, jsonify, request
 
 if not os.path.exists('templates'):
     os.makedirs('templates')
@@ -320,7 +321,7 @@ html_content = """
         if (letter === correctLettersArray[currentIndex]) {
             currentAnswerArray.push(letter);
             clickedButtons.push(btnElement);
-            btnElement.style.visibility = 'hidden'; // Hide but keep space
+            btnElement.style.visibility = 'hidden'; 
             document.getElementById('undo-btn').style.display = 'block';
             updateAnswerDisplay();
             
@@ -383,6 +384,10 @@ html_content = """
 
 with open('templates/index.html', 'w', encoding='utf-8') as f:
     f.write(html_content)
+
+# இப்போழுது பைதான் சர்வரைத் தொடங்குகிறோம்
+app = Flask(__name__)
+csv_file = "tamil_quiz_data.csv"
 
 @app.route('/')
 def home():
