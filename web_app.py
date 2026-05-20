@@ -1,30 +1,16 @@
 import os
-import sys
-import subprocess
 import csv
 import random
 from flask import Flask, render_template, jsonify, request
+from tamil import utf8
 
-def install_package(package_name):
-    python_exe = sys.executable.replace("pythonw.exe", "python.exe")
-    subprocess.check_call([python_exe, "-m", "pip", "install", package_name])
+app = Flask(__name__)
+csv_file = "tamil_quiz_data.csv"
 
-try:
-    import flask
-except ImportError:
-    install_package("flask")
-    import flask
-
-try:
-    from tamil import utf8
-except ImportError:
-    install_package("open-tamil")
-    from tamil import utf8
-
+# HTML கோப்பகத்தை உருவாக்குதல்
 if not os.path.exists('templates'):
     os.makedirs('templates')
 
-# Google Stitch Design + Korkai Font + Skip Option + Remaining Count + Game Over Screen
 html_content = """
 <!DOCTYPE html>
 <html lang="ta">
@@ -36,31 +22,21 @@ html_content = """
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     <script id="tailwind-config">
       tailwind.config = {
-        darkMode: "class",
         theme: {
           extend: {
-            "colors": {
-                    "on-background": "#161d1f",
-                    "primary-container": "#008377",
+            colors: {
                     "surface-container-lowest": "#ffffff",
                     "primary": "#00685e",
-                    "secondary-container": "#ff9800",
                     "surface": "#f4fafd",
             },
-            "fontFamily": {
-                    "body-lg": ["Korkai", "sans-serif"],
-                    "headline-lg": ["Korkai", "sans-serif"],
-                    "label-md": ["Korkai", "sans-serif"],
-                    "body-md": ["Korkai", "sans-serif"],
-                    "headline-lg-mobile": ["Korkai", "sans-serif"],
+            fontFamily: {
                     "sans": ["Korkai", "sans-serif"]
             }
-          },
-        },
+          }
+        }
       }
     </script>
     <style>
-        /* கொற்கை எழுத்துரு */
         @font-face {
             font-family: 'Korkai';
             src: url("{{ url_for('static', filename='fonts/Korkai-Black.ttf') }}") format('truetype');
@@ -94,15 +70,15 @@ html_content = """
         }
     </style>
 </head>
-<body class="bg-surface text-on-surface min-h-screen pb-24 md:pb-0" style="font-family: 'Korkai', sans-serif;">
+<body class="bg-surface text-gray-800 min-h-screen" style="font-family: 'Korkai', sans-serif;">
 
-<header class="flex justify-between items-center w-full px-4 py-4 sticky top-0 z-50 bg-surface border-b-2 border-primary/10 shadow-sm">
-    <h1 class="font-headline-lg-mobile text-2xl font-extrabold text-primary">📚 சொல்-களஞ்சியம்</h1>
+<header class="flex justify-between items-center w-full px-4 py-4 sticky top-0 z-50 bg-surface border-b-2 border-teal-100 shadow-sm">
+    <h1 class="text-2xl font-extrabold text-primary">📚 சொல்-களஞ்சியம்</h1>
     <div class="flex items-center gap-3">
-        <span id="remaining-display" class="font-label-md text-sm text-orange-800 bg-orange-100 px-3 py-1 rounded-full border border-orange-200" style="display:none;">
+        <span id="remaining-display" class="text-sm text-orange-800 bg-orange-100 px-3 py-1 rounded-full border border-orange-200" style="display:none;">
             மீதம்: 0
         </span>
-        <span id="score-display" class="font-label-md text-label-md text-primary bg-primary-container/10 px-4 py-2 rounded-full border border-primary/20">
+        <span id="score-display" class="text-primary bg-teal-50 px-4 py-2 rounded-full border border-teal-200 font-bold">
             மதிப்பெண்: 0
         </span>
     </div>
@@ -111,11 +87,11 @@ html_content = """
 <main class="max-w-[1200px] mx-auto px-4 md:px-16 py-8 space-y-8">
     
     <section class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
-        <div class="md:col-span-8 bg-surface-container-lowest rounded-xl p-6 border-2 border-primary/5 shadow-sm">
+        <div class="md:col-span-8 bg-white rounded-xl p-6 border-2 border-teal-50 shadow-sm">
             <div class="flex flex-col md:flex-row gap-6 items-end">
                 <div class="w-full space-y-2">
-                    <label class="font-label-md text-label-md text-gray-600">வகுப்பைத் தேர்ந்தெடு</label>
-                    <select id="class-select" class="w-full bg-gray-100 border-2 border-transparent focus:border-orange-500 rounded-lg p-3 font-body-md appearance-none">
+                    <label class="text-gray-600 font-bold">வகுப்பைத் தேர்ந்தெடு</label>
+                    <select id="class-select" class="w-full bg-gray-100 border-2 border-transparent focus:border-orange-500 rounded-lg p-3 appearance-none font-bold">
                         <option value="6-ஆம் வகுப்பு">6-ஆம் வகுப்பு</option>
                         <option value="7-ஆம் வகுப்பு">7-ஆம் வகுப்பு</option>
                         <option value="8-ஆம் வகுப்பு">8-ஆம் வகுப்பு</option>
@@ -123,19 +99,19 @@ html_content = """
                     </select>
                 </div>
                 <div class="w-full space-y-2">
-                    <label class="font-label-md text-label-md text-gray-600">இயலைத் தேர்ந்தெடு</label>
-                    <select id="chapter-select" class="w-full bg-gray-100 border-2 border-transparent focus:border-orange-500 rounded-lg p-3 font-body-md appearance-none">
+                    <label class="text-gray-600 font-bold">இயலைத் தேர்ந்தெடு</label>
+                    <select id="chapter-select" class="w-full bg-gray-100 border-2 border-transparent focus:border-orange-500 rounded-lg p-3 appearance-none font-bold">
                         <option value="இயல் 1">இயல் 1</option>
                         <option value="இயல் 2">இயல் 2</option>
                         <option value="இயல் 3">இயல் 3</option>
                     </select>
                 </div>
-                <button onclick="startGame()" class="w-full md:w-auto bg-primary text-white font-label-md px-8 py-3.5 rounded-xl tactile-btn whitespace-nowrap">
+                <button onclick="startGame()" class="w-full md:w-auto bg-primary text-white px-8 py-3.5 rounded-xl tactile-btn whitespace-nowrap font-bold">
                     விளையாடத் தொடங்கு
                 </button>
             </div>
         </div>
-        <div class="md:col-span-4 bg-primary-container text-white rounded-xl p-6 relative overflow-hidden flex flex-col justify-center">
+        <div class="md:col-span-4 bg-teal-700 text-white rounded-xl p-6 relative overflow-hidden flex flex-col justify-center">
             <div class="z-10">
                 <h3 class="text-xl font-bold mb-1">இன்றைய இலக்கு</h3>
                 <p class="opacity-90">சொற்களைச் சரியாகக் கண்டறிந்து வெற்றி பெறு!</p>
@@ -146,15 +122,13 @@ html_content = """
         </div>
     </section>
 
-    <section id="quiz-area" class="bg-surface-container-lowest rounded-xl border-2 border-primary/10 shadow-sm overflow-hidden" style="display: none;">
+    <section id="quiz-area" class="bg-white rounded-xl border-2 border-teal-50 shadow-sm overflow-hidden" style="display: none;">
         
-        <div class="bg-primary/5 p-4 md:p-6 border-b border-primary/10 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <span class="bg-primary text-white rounded-full p-2 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-sm" data-icon="quiz">quiz</span>
-                </span>
-                <h2 id="question-text" class="text-xl font-bold text-primary">கேள்வி ஏற்றப்படுகிறது...</h2>
-            </div>
+        <div class="bg-teal-50 p-4 md:p-6 border-b border-teal-100 flex items-center gap-3">
+            <span class="bg-primary text-white rounded-full p-2 flex items-center justify-center">
+                <span class="material-symbols-outlined text-sm" data-icon="quiz">quiz</span>
+            </span>
+            <h2 id="question-text" class="text-xl font-bold text-primary">கேள்வி ஏற்றப்படுகிறது...</h2>
         </div>
 
         <div class="p-6 md:p-12 space-y-12">
@@ -162,7 +136,7 @@ html_content = """
                 <div class="inline-block px-4 py-1 bg-orange-100 text-orange-800 font-bold rounded-full border border-orange-200">
                     வாக்கியத்தை நிரப்புக
                 </div>
-                <p id="sentence-text" class="font-headline-lg text-2xl text-gray-800 leading-relaxed"></p>
+                <p id="sentence-text" class="text-2xl text-gray-800 leading-relaxed font-bold"></p>
             </div>
 
             <div class="max-w-xl mx-auto space-y-4">
@@ -181,7 +155,7 @@ html_content = """
                     </div>
                 </div>
                 
-                <div id="answer-display" class="bg-gray-50 border-2 border-primary/20 rounded-2xl h-20 flex items-center justify-center gap-3 shadow-inner text-3xl font-bold text-primary">
+                <div id="answer-display" class="bg-gray-50 border-2 border-teal-100 rounded-2xl h-20 flex items-center justify-center gap-3 shadow-inner text-3xl font-bold text-primary">
                 </div>
             </div>
 
@@ -217,7 +191,6 @@ html_content = """
         selectedChapter = document.getElementById('chapter-select').value;
         document.getElementById('quiz-area').style.display = 'block';
         
-        // Reset counters
         questionNumber = 0; 
         score = 0;
         document.getElementById('score-display').innerText = "மதிப்பெண்: " + score;
@@ -229,7 +202,7 @@ html_content = """
         questionNumber++;
         document.getElementById('next-btn').style.display = 'none';
         document.getElementById('undo-btn').style.display = 'none';
-        document.getElementById('skip-btn').style.display = 'flex'; // தவிர் பட்டனை காண்பி
+        document.getElementById('skip-btn').style.display = 'flex'; 
         document.getElementById('answer-display').innerHTML = "";
         document.getElementById('status-icons').style.display = 'none';
         document.getElementById('icon-correct').style.display = 'none';
@@ -250,10 +223,9 @@ html_content = """
                 
                 totalChapterQuestions = data.total_questions;
 
-                // இயலை வெற்றிகரமாக முடித்துவிட்டால் (Game Over Screen)
                 if (questionNumber > totalChapterQuestions) {
                     document.getElementById('quiz-area').innerHTML = `
-                        <div class="p-12 text-center space-y-6 bg-surface-container-lowest">
+                        <div class="p-12 text-center space-y-6 bg-white">
                             <span class="material-symbols-outlined text-6xl text-orange-500">emoji_events</span>
                             <h2 class="text-4xl font-bold text-primary">வாழ்த்துகள்!</h2>
                             <p class="text-2xl text-gray-700">இந்த இயலை வெற்றிகரமாக முடித்துவிட்டீர்கள்.</p>
@@ -265,7 +237,6 @@ html_content = """
                     return;
                 }
                 
-                // மீதமுள்ள கேள்விகளைக் கணக்கிடுதல்
                 let remaining = totalChapterQuestions - questionNumber;
                 document.getElementById('remaining-display').style.display = 'inline-block';
                 document.getElementById('remaining-display').innerText = "மீதம்: " + remaining;
@@ -301,7 +272,7 @@ html_content = """
                 document.getElementById('icon-correct').style.display = 'block';
                 document.getElementById('next-btn').style.display = 'flex';
                 document.getElementById('undo-btn').style.display = 'none'; 
-                document.getElementById('skip-btn').style.display = 'none'; // முடித்த பின் தவிர் தேவையில்லை
+                document.getElementById('skip-btn').style.display = 'none'; 
                 
                 let audio = document.getElementById('success-sound');
                 audio.volume = 0.5; audio.play();
@@ -333,7 +304,6 @@ html_content = """
         }
     }
 
-    // தவிர் பட்டன் செயல்பாடு (Skip Logic)
     function skipQuestion() {
         fetchQuestion();
     }
@@ -352,9 +322,6 @@ html_content = """
 
 with open('templates/index.html', 'w', encoding='utf-8') as f:
     f.write(html_content)
-
-app = Flask(__name__)
-csv_file = "tamil_quiz_data.csv"
 
 @app.route('/')
 def home():
